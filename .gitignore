@@ -1,0 +1,4 @@
+*.log
+example/example
+example/*.log
+example/*.pid
