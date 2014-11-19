@@ -12,8 +12,8 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-	"time"
 	"sync"
+	"time"
 )
 
 var ping = "1m"
@@ -59,18 +59,21 @@ func RunProcess(name string, p *Process) chan *Process {
 }
 
 type Process struct {
-	Name     string
-	Command  string
-	Args     []string
-	Pidfile  Pidfile
-	Logfile  string
-	Errfile  string
-	Path     string
-	Respawn  int
-	Delay    string
-	Ping     string
-	Pid      int
-	Status   string
+	Name    string
+	Command string
+	Args    []string
+	Pidfile Pidfile
+	Logfile string
+	Errfile string
+	Path    string
+	Respawn int
+	Delay   string
+	Ping    string
+	Pid     int
+	Status  string
+	Workdir string
+	// Strings representing the environment, in the form "key=value". See `os.Environ()`.
+	Env      []string
 	x        *os.Process
 	respawns int
 	children children
@@ -112,10 +115,21 @@ func (p *Process) Start() string {
 //Start the process
 func (p *Process) start(name string) string {
 	p.Name = name
-	wd, _ := os.Getwd()
+	var wd string
+	if p.Workdir == "" {
+		wd, _ = os.Getwd()
+	} else {
+		wd = p.Workdir
+	}
+	var env []string
+	if len(p.Env) == 0 {
+		env = os.Environ()
+	} else {
+		env = p.Env
+	}
 	proc := &os.ProcAttr{
 		Dir: wd,
-		Env: os.Environ(),
+		Env: env,
 		Files: []*os.File{
 			os.Stdin,
 			Logfile(p.Logfile),

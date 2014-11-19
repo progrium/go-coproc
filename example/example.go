@@ -1,14 +1,14 @@
-package main 
+package main
 
 import (
-	"time"
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"bitbucket.org/kardianos/osext"
 	"github.com/ActiveState/tail"
-	"github.com/progrium/go-coproc"
+	"github.com/enr/go-coproc"
 )
 
 func main() {
@@ -35,20 +35,20 @@ func main() {
 		}
 		group := new(coproc.Group)
 		for i := 1; i <= count; i++ {
-			name := "coproc"+strconv.Itoa(i)
+			name := "coproc" + strconv.Itoa(i)
 			p := &coproc.Process{
 				Name:    name,
 				Command: exe,
 				Args:    []string{"0", name},
-				Pidfile: coproc.Pidfile(name+".pid"),
-				Logfile: name+".log",
+				Pidfile: coproc.Pidfile(name + ".pid"),
+				Logfile: name + ".log",
 				Respawn: 3,
 			}
 			t, _ := tail.TailFile(name+".log", tail.Config{Follow: true})
 			p.Start()
 			go func() {
 				for line := range t.Lines {
-    				output(line.Text)
+					output(line.Text)
 				}
 			}()
 			group.Add(p)
